@@ -1,18 +1,18 @@
 #!/usr/bin/python3
 import os
-import posixpath
 import statistics as stats
 
 root = os.path.dirname(os.path.abspath(__file__))
 example = os.path.join(root, 'Example.txt')
 input = os.path.join(root, 'Input.txt')
 bigboy = os.path.join(root, 'BigBoy.txt')
+input2 = os.path.join(root, 'chaz_day07_input.txt')
 
 #key: position, value: # of crabs
 crabs = {}
 mean = 0
 median = 0
-with open(bigboy, 'r') as f:
+with open(input2, 'r') as f:
   input = list(map(int, f.readline().split(',')))
   median = int(stats.median(input))
   mean = int(stats.mean(input))

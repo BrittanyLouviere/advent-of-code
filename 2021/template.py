@@ -6,4 +6,5 @@ example = os.path.join(root, 'Example.txt')
 input = os.path.join(root, 'Input.txt')
 bigboy = os.path.join(root, 'BigBoy.txt')
 
-file = open(example, 'r')
+with open(example, 'r') as f:
+  pass

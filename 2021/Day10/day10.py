@@ -15,38 +15,21 @@ with open(input, 'r') as f:
     completionPoints = 0
     for x in line.strip():
       if corrupted == True: break #break out of loop if corruption found
-      if x == "(" or x == "[" or x == "{" or x == "<":
+      if x in "([{<":
         openChunks.append(x)
       else:
         lastChunk = openChunks[-1]
-        if ((lastChunk == "(" and x == ")")
-        or (lastChunk == "[" and x == "]")
-        or (lastChunk == "{" and x == "}")
-        or (lastChunk == "<" and x == ">")):
-          openChunks.pop(-1)
+        if lastChunk + x in "()[]{}<>":
+          openChunks.pop()
         else: #corrupted
           corrupted = True
-          if x == ")":
-            corruptionPoints += 3
-          elif x == "]":
-            corruptionPoints += 57
-          elif x == "}":
-            corruptionPoints += 1197
-          elif x == ">":
-            corruptionPoints += 25137
+          points = [3, 57, 1197, 25137]
+          corruptionPoints += points[")]}>".index(x)]
     if corrupted == True: continue #don't calculate completion points if corrupted
     for x in reversed(openChunks):
       completionPoints *= 5
-      if x == "(":
-        completionPoints += 1
-      elif x == "[":
-        completionPoints += 2
-      elif x == "{":
-        completionPoints += 3
-      elif x == "<":
-        completionPoints += 4
+      completionPoints += "([{<".index(x) + 1
     completionPointsList.append(completionPoints)
-
 
 print("Part 1: ", corruptionPoints)
 completionPointsList.sort()

@@ -1,19 +1,25 @@
 #!/usr/bin/python3
 import os
+import numpy as np
+
+array = np.array([[-1, -1], [-1, 0], [1, -1], [2, 3], [10, 4], [5, 10], [10, 10]])
+x, y = ((array > -1) & (array < 10)).transpose()
+test2 = array[x&y]
 
 root = os.path.dirname(os.path.abspath(__file__))
 example = os.path.join(root, 'Example.txt')
 input = os.path.join(root, 'Input.txt')
 bigboy = os.path.join(root, 'BigBoy.txt')
 
-octopi = []
+octopi = None
 size = -1
 with open(input, 'r') as f:
   row = 0
   for line in f.readlines():
     col = 0
-    if size == -1: size = len(line.strip())
-    octopi.append([0] * size)
+    if size == -1: 
+      size = len(line.strip())
+      octopi = np.empty((size, size), dtype=int)
     for num in line.strip():
       octopi[row][col] = int(num)
       col += 1
@@ -21,30 +27,26 @@ with open(input, 'r') as f:
 
 flashCount = 0
 firstAllFlash = -1
-days = 100
-day = 0
-while day < days or firstAllFlash == -1:
-  day += 1
-  flashQueue = []
-  for row in range(size):
-    for col in range(size):
-      octopi[row][col] += 1
-      if octopi[row][col] > 9:
-        flashQueue.append((row, col))
+steps = 100
+step = 0
+while step < steps or firstAllFlash == -1:
+  step += 1
+  octopi += 1
+  flashQueue : list = np.transpose(np.where(octopi > 9)).tolist()
   for row, col in flashQueue:
-    for row2 in [row-1, row, row+1]:
-      for col2 in [col-1, col, col+1]:
-        if row2 > -1 and row2 < size and col2 > -1 and col2 < size:
-          octopi[row2][col2] += 1
-          if octopi[row2][col2] > 9 and (row2, col2) not in flashQueue: 
-            flashQueue.append((row2, col2))
-  for row, col in flashQueue:
-    octopi[row][col] = 0
+    neighbors = np.array(np.meshgrid([row-1, row, row+1], [col-1, col, col+1])).T.reshape(-1,2)
+    x, y = ((neighbors > -1) & (neighbors < size)).transpose()
+    neighbors = neighbors[x & y]
+    for nRow, nCol in neighbors:
+      octopi[nRow][nCol] += 1
+      if octopi[nRow][nCol] > 9 and [nRow, nCol] not in flashQueue: 
+        flashQueue.append([nRow, nCol])
+  octopi[octopi > 9] = 0
   flashes = len(flashQueue)
-  if day <= days:
+  if step <= steps:
     flashCount += flashes
   if flashes == size**2 and firstAllFlash == -1:
-    firstAllFlash = day
+    firstAllFlash = step
 
 print("Part 1: ", flashCount)
 print("Part 2: ", firstAllFlash)

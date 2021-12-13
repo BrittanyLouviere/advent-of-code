@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import os
-#import queue
 
 root = os.path.dirname(os.path.abspath(__file__))
 example = os.path.join(root, 'Example.txt')
@@ -9,9 +8,9 @@ bigboy = os.path.join(root, 'BigBoy.txt')
 
 nodes = {}
 # key: node, value: array all connected nodes
-# skips putting "start"
+# skips adding "start" in values
 # skips adding an "end" key
-with open(input, 'r') as f:
+with open(bigboy, 'r') as f:
   for line in f.readlines():
     x, y = line.strip().split("-")
     if y != "start":
@@ -25,28 +24,32 @@ with open(input, 'r') as f:
       elif y != "end":
         nodes[y] = [x]
 
-part1DonePaths = 0
-part2DonePaths = 0
+memo = {}
+def recurse(lastNode : str, visitedSmall : str, hasDouble : bool):
+  answer = memo.get((lastNode, visitedSmall, hasDouble), None)
+  if answer is not None: return answer # if answer already found, return it
 
-# set up starting paths
-# (path array, has repeated small boolean)
-paths = []
-for node in nodes["start"]:
-  if node == "end": 
-    part1DonePaths += 0
-    part2DonePaths += 1
-  else: paths.append(([node], False))
-
-# depth first search
-while len(paths) > 0:
-  path, hasDouble = paths.pop()
-  lastNode = path[-1]
+  visited = [val for val in visitedSmall.split("-") if val != '']
+  part1Total = 0
+  part2Total = 0
   for newNode in nodes[lastNode]:
+    part1Count = 0
+    part2Count = 0
     if newNode == "end":
-      part2DonePaths += 1
-      if not hasDouble: part1DonePaths += 1
-    elif newNode.isupper() or newNode not in path or not hasDouble:
-      paths.append((path + [newNode], hasDouble or (newNode.islower() and newNode in path)))
+      part2Count += 1
+      if not hasDouble: part1Count += 1
+    elif newNode.isupper():
+      part1Count, part2Count = recurse(newNode, visitedSmall, hasDouble)
+    elif newNode not in visited:
+      part1Count, part2Count = recurse(newNode, "-".join(sorted(visited + [newNode])), hasDouble)
+    elif not hasDouble:
+      part1Count, part2Count = recurse(newNode, visitedSmall, True)
+    part1Total += part1Count
+    part2Total += part2Count
 
-print("Part 1: ", part1DonePaths)
-print("Part 2: ", part2DonePaths)
+  memo[(lastNode, visitedSmall, hasDouble)] = (part1Total, part2Total)
+  return (part1Total, part2Total)
+
+part1, part2 = recurse("start", "", False)
+print("Part 1: ", part1)
+print("Part 2: ", part2)

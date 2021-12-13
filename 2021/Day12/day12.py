@@ -1,69 +1,52 @@
 #!/usr/bin/python3
 import os
-import queue
+#import queue
 
 root = os.path.dirname(os.path.abspath(__file__))
 example = os.path.join(root, 'Example.txt')
 input = os.path.join(root, 'Input.txt')
 bigboy = os.path.join(root, 'BigBoy.txt')
 
-nodes = []
+nodes = {}
+# key: node, value: array all connected nodes
+# skips putting "start"
+# skips adding an "end" key
 with open(input, 'r') as f:
   for line in f.readlines():
     x, y = line.strip().split("-")
-    nodes.append((x, y))
+    if y != "start":
+      if x in nodes:
+        nodes[x].append(y)
+      elif x != "end":
+        nodes[x] = [y]
+    if x != "start":
+      if y in nodes:
+        nodes[y].append(x)
+      elif y != "end":
+        nodes[y] = [x]
 
-def part1():
-  paths = queue.SimpleQueue()
-  for nodeX, nodeY in nodes:
-    if nodeX == "start":
-      paths.put(["start", nodeY])
-    elif nodeY == "start":
-      paths.put(["start", nodeX])
+part1DonePaths = 0
+part2DonePaths = 0
 
-  donePaths = []
-  while not paths.empty():
-    path = paths.get()
-    lastNode = path[-1]
-    if lastNode == "end": 
-      donePaths.append(path)
-      continue
-    for nodeX, nodeY in nodes:
-      if nodeX == lastNode and (nodeY.isupper() or nodeY not in path):
-        paths.put(path + [nodeY])
-      elif nodeY == lastNode and (nodeX.isupper() or nodeX not in path):
-        paths.put(path + [nodeX])
-  return(len(donePaths))
+# set up starting paths
+# (path array, has repeated small boolean)
+paths = []
+for node in nodes["start"]:
+  if node == "end": 
+    part1DonePaths += 0
+    part2DonePaths += 1
+  else: paths.append(([node], False))
 
-def part2():
-  paths = queue.SimpleQueue()
-  for nodeX, nodeY in nodes:
-    if nodeX == "start":
-      paths.put(["start", nodeY])
-    elif nodeY == "start":
-      paths.put(["start", nodeX])
+# depth first search
+while len(paths) > 0:
+  path, hasDouble = paths.pop()
+  lastNode = path[-1]
+  for newNode in nodes[lastNode]:
+    if newNode == "end":
+      part2DonePaths += 1
+      if not hasDouble: part1DonePaths += 1
+    elif newNode.isupper() or newNode not in path or not hasDouble:
+      paths.append((path + [newNode], hasDouble or (newNode.islower() and newNode in path)))
 
-  donePaths = []
-  while not paths.empty():
-    path = paths.get()
-    lastNode = path[-1]
-    hasDoubleVisit = len([val for val in path if val.islower() and path.count(val) > 1]) > 0
-    if lastNode == "end": 
-      donePaths.append(path)
-      continue
-    for nodeX, nodeY in nodes:
-      nextNode = None
-      if nodeX == lastNode:
-        nextNode = nodeY
-      elif nodeY == lastNode:
-        nextNode = nodeX
-
-      if nextNode != None and nextNode != "start":
-        if nextNode.isupper():
-          paths.put(path + [nextNode])
-        elif nextNode not in path or not hasDoubleVisit:
-          paths.put(path + [nextNode])
-  return(len(donePaths))
-
-print("Part 1: ", part1())
-print("Part 2: ", part2())
+print("Part 1: ", part1DonePaths)
+print("Part 2: ", part2DonePaths)

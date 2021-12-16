@@ -15,8 +15,14 @@ with open(input, 'r') as f:
 
 @dataclass(order=True)
 class PathPoint:
-  cost: int
+  priority: int
+  cost: int=field(compare=False)
   coord: tuple=field(compare=False)
+  
+  def __init__(self, cost, coord, maxX, maxY) -> None:
+    self.cost = cost
+    self.coord = coord
+    self.priority = cost + (maxX - coord[0]) + (maxY - coord[1])
 
 def digitSum(n):
   r = 0
@@ -31,7 +37,7 @@ def findPath(gridMult:int):
   maxY = sizeY * gridMult
   paths = []
   visited = set()
-  currentPoint = PathPoint(0, (0, 0))
+  currentPoint = PathPoint(0, (0, 0), maxX, maxY)
 
   while currentPoint.coord != (maxX-1, maxY-1):
     x, y = currentPoint.coord
@@ -41,7 +47,7 @@ def findPath(gridMult:int):
         additive = (newX // sizeX) + (newY // sizeY)
         value = digitSum((int(grid[newY % sizeX][newX % sizeY]) + additive))
         newCost = currentCost + value
-        heapq.heappush(paths, PathPoint(newCost, (newX, newY)))
+        heapq.heappush(paths, PathPoint(newCost, (newX, newY), maxX, maxY))
     visited.add((x, y))
     while currentPoint.coord in visited:
       currentPoint = heapq.heappop(paths)

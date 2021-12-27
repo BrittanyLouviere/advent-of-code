@@ -14,43 +14,24 @@ with open(input, 'r') as f:
   yMin = int(nums[2])
   yMax = int(nums[3])
 
-xVelDict = {}
-for xVelStart in range(xMax):
-  xVel = xVelStart
-  xPos = 0
-  steps = 0
-  while xPos < xMax:
-    if xPos >= xMin:
-      if steps not in xVelDict:
-        xVelDict[steps] = []
-      xVelDict[steps].append(xVelStart)
-    xPos += xVel
-    xVel -= 1
-    if xVel < 0: break
-    steps += 1
-
+initVels = 0
 highestYPos = 0
-yVelDict = {}
-yVelStart = yMax
-while yVelStart < abs(yMin):
-  yPosMax = 0
-  yVel = yVelStart
-  yPos = 0
-  steps = 0
-  while yPos >= yMin:
-    if yPos > yPosMax:
-      yPosMax = yPos
-    if yPos <= yMax:
-      if steps not in yVelDict:
-        yVelDict[steps] = []
-      yVelDict[steps].append(yVelStart)
-      if steps >= min(xVelDict):
-        if yPosMax > highestYPos:
-          highestYPos = yPosMax
+
+for initX in range(xMax + 1):
+  for initY in range(yMin, abs(yMin) + 1):
+    velX = initX
+    velY = initY
+    posX = posY = posYMax = 0
+    while posX <= xMax and posY >= yMin:
+      posYMax = max(posYMax, posY)
+      if posX >= xMin and posY <= yMax:
+        initVels += 1
+        highestYPos = max(highestYPos, posYMax)
         break
-    yPos += yVel
-    yVel -= 1
-    steps += 1
-  yVelStart += 1
+      posX += velX
+      posY += velY
+      velX = max(velX - 1, 0)
+      velY -= 1
 
 print("Part 1: ", highestYPos)
+print("Part 2: ", initVels)

@@ -14,24 +14,47 @@ with open(input, 'r') as f:
   yMin = int(nums[2])
   yMax = int(nums[3])
 
+# key: steps, val: array of initial y velocities
+yHits = {}
+yMaxs = {}
+for initY in range(yMin, abs(yMin) + 1):
+  velY = initY
+  posY = posYMax = step = 0
+  while posY >= yMin:
+    posYMax = max(posYMax, posY)
+    if posY <= yMax:
+      if step not in yHits:
+        yHits[step] = []
+      yHits[step].append(initY)
+      yMaxs[step] = max(yMaxs.get(step, 0), posYMax)
+    posY += velY
+    velY -= 1
+    step += 1
+
 initVels = 0
 highestYPos = 0
 
-for initX in range(xMax + 1):
-  for initY in range(yMin, abs(yMin) + 1):
-    velX = initX
-    velY = initY
-    posX = posY = posYMax = 0
-    while posX <= xMax and posY >= yMin:
-      posYMax = max(posYMax, posY)
-      if posX >= xMin and posY <= yMax:
-        initVels += 1
-        highestYPos = max(highestYPos, posYMax)
-        break
-      posX += velX
-      posY += velY
-      velX = max(velX - 1, 0)
-      velY -= 1
+xStart = 0
+test = 0
+while test < xMin:
+  test += xStart
+  xStart += 1
+xStart -= 1
+maxStep = max(yHits)
+
+for initX in range(xStart, xMax + 1):
+  velX = initX
+  posX = step = 0
+  initYs = set()
+  while posX <= xMax and step <= maxStep:
+    if posX >= xMin:
+      highestYPos = max(highestYPos, yMaxs.get(step, 0))
+      for initY in yHits.get(step, []):
+        initYs.add(initY)
+    posX += velX
+    velX = max(velX - 1, 0)
+    step += 1
+  initVels += len(initYs)
 
 print("Part 1: ", highestYPos)
 print("Part 2: ", initVels)

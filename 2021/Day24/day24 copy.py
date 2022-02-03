@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import os
+from unittest import result
 
 root = os.path.dirname(os.path.abspath(__file__))
 example = os.path.join(root, 'Example.txt')
@@ -12,7 +13,7 @@ with open(inputData, 'r') as f:
     instructions.append(i.strip().split())
 
 def runInstructions(instructions, inputStr = None):
-  inputs = inputStr.split(",")
+  inputs = list(reversed(inputStr.split(",")))
   alu = {
     "w": 0,
     "x": 0,
@@ -54,25 +55,34 @@ for inst in instructions:
     instructionSets.append([])
   instructionSets[-1].append(inst)
 
+results = [[] for _ in range(14)]
+for i in range(0,10):
+  for j in range(len(instructionSets)):
+    results[j].append(runInstructions(instructionSets[j], str(i))["z"])
+
 #############################################################################################
 # Trying to go front to back but wouldn't that end with checking every possible combo again?
+# Takes a long time to run...
 #############################################################################################
 
 # find model numbers
 first = True
-results = [["", 0]]
+results = [{0: []}]
 for inst in instructionSets:
-  if not first:
-    inst = [['inp', 'z']] + inst
-  first = False
-  results.append([])
-  for oldNum, oldZ in results[-2]:
+  inst = [['inp', 'z']] + inst
+  results.append({})
+  for prevZ, prevNum in results[-2].items():
     for num in range(1, 10):
-      z = runInstructions(inst, ",".join(str(oldZ), str(num), oldNum))["z"]
-      results[-1].append((str(num), z))
+      z = runInstructions(inst, ",".join([str(prevZ), str(num)]))["z"]
+      oldNum = results[-1].get(z, [-1])[0]
+      if oldNum < num:
+        results[-1][z] = [num] + prevNum
 
 
 # double check model numbers
-for _, numbers in results.items():
-  z = runInstructions(instructions, numbers)["z"]
-  q = 0
+for finalZ, numbers in results[-1].items():
+  z = runInstructions(instructions, str(numbers)[1:-1].replace(" ", ""))["z"]
+  if z == finalZ:
+    q = 0
+  else:
+    q = 0

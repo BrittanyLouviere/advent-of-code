@@ -12,7 +12,7 @@ with open(inputData, 'r') as f:
     instructions.append(i.strip().split())
 
 def runInstructions(instructions, inputStr = None):
-  inputs = inputStr.split(",")
+  inputs = list(reversed(inputStr.split(",")))
   alu = {
     "w": 0,
     "x": 0,
@@ -47,18 +47,6 @@ def runInstructions(instructions, inputStr = None):
       alu[var1] = int(alu[var1] == var2)
   return alu
 
-alu = runInstructions(instructions, '1,1,1,1,9,1,9,1,1,9,9,9,9,9')
-alu = runInstructions(instructions, '1,1,1,1,9,1,9,1,1,9,9,9,9,8')
-alu = runInstructions(instructions, '1,1,1,1,9,1,9,1,1,9,9,9,9,7')
-alu = runInstructions(instructions, '1,1,1,1,9,1,9,1,1,9,9,9,9,6')
-alu = runInstructions(instructions, '1,1,1,1,9,1,9,1,1,9,9,9,9,5')
-alu = runInstructions(instructions, '1,1,1,1,9,1,9,1,1,9,9,9,9,4')
-alu = runInstructions(instructions, '1,1,1,1,9,1,9,1,1,9,9,9,9,3')
-alu = runInstructions(instructions, '1,1,1,1,9,1,9,1,1,9,9,9,9,2')
-alu = runInstructions(instructions, '1,1,1,1,9,1,9,1,1,9,9,9,9,9')
-q = 0
-
-
 # seperate instuctions by input
 instructionSets = []
 for inst in instructions:
@@ -75,8 +63,8 @@ for instCount in reversed(range(0, len(instructionSets))):
     z = -1
     timer = 0
     foundNewResult = False
-#    while timer < 10 and (instCount != 0 or z != 0):
-    while z < 1000 and (instCount != 0 or z != 0):
+    while timer < 10 and (instCount != 0 or z != 0):
+#    while z < 1000 and (instCount != 0 or z != 0):
       z += 1
       for i in [1, -1]:
         zTest = z * i
@@ -93,7 +81,7 @@ for instCount in reversed(range(0, len(instructionSets))):
   results = newResults
 
 ##########################################################
-# For some reason, this always ends without any results...
+# It takes a loooooong time to run
 ##########################################################
 
 # double check model numbers

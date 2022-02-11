@@ -55,36 +55,35 @@ for inst in instructions:
   instructionSets[-1].append(inst)
 
 # find model numbers
-results = {0: None}
-for instCount in reversed(range(0, len(instructionSets))):
-  inst = [['inp', 'z']] + instructionSets[instCount]
-  newResults = {}
-  for goal, oldNums in results.items():
-    z = -1
-    timer = 0
-    foundNewResult = False
-    while timer < 10 and (instCount != 0 or z != 0):
-#    while z < 1000 and (instCount != 0 or z != 0):
-      z += 1
-      for i in [1, -1]:
-        zTest = z * i
-        for newNum in range(1, 10):
-          inputStr = str(newNum)
-          if oldNums != None: inputStr = inputStr + "," + oldNums
-          newZ = runInstructions(inst, str(zTest) + "," + str(newNum))["z"]
-          if newZ == goal:
-            oldStr = newResults.get(zTest, None)
-            if oldStr == None or int(oldStr.replace(",", "")) < int(inputStr.replace(",", "")):
-              newResults[zTest] = inputStr
-            foundNewResult = True
-      timer += foundNewResult
-  results = newResults
+# z : num
+prevResults = {0: ''}
+for inst in instructionSets:
+  inst = [['inp', 'z']] + inst
+  currResults = {}
+  for prevZ, prevNum in prevResults.items():
+    for num in range(1, 10):
+      z = runInstructions(inst, ",".join([str(prevZ), str(num)]))["z"]
+      newNum = prevNum + str(num)
+      oldNum = currResults.get(z, None)
+      # if oldNum is None or int(newNum) > int(oldNum): # for part 1
+      if oldNum is None or int(newNum) < int(oldNum): # for part 2
+        currResults[z] = newNum
+  
+  zSet = set(currResults.keys())
+  maxZ = max(zSet) / 26
 
-##########################################################
-# It takes a loooooong time to run
-##########################################################
+  lowerResults = [(zs, nums) for zs, nums in currResults.items() if zs < maxZ]
+  if len(lowerResults) > 0:
+    newResults = {}
+    for zs, nums in lowerResults:
+      newResults[zs] = nums
+    currResults = newResults
+  prevResults = currResults
 
-# double check model numbers
-for _, numbers in results.items():
-  z = runInstructions(instructions, numbers)["z"]
-  q = 0
+# for part 1
+# maxNum = max(currResults.values())
+# print(maxNum)
+
+# for part 2
+minNum = min(currResults.values())
+print(minNum)

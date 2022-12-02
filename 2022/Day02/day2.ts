@@ -28,7 +28,26 @@ function part1(){
 }
 
 function part2(){
+  let totalScore :number = 0
+  input.forEach(round => {
+    let choices :string[] = round.split(' ')
 
+    // get choices
+    let opponent :number = choices[0].charCodeAt(0) - 64
+
+    // win/lose/tie
+    if (choices[1] == "Y") {
+      totalScore += 3 // score for tie
+      totalScore += opponent // my choice is same as opponent's
+    } else if (choices[1] == "Z") {
+      totalScore += 6 // score for win
+      totalScore += opponent == 3 ? 1 : opponent + 1 // 1 -> 2   2 -> 3   3 -> 1
+    } else { 
+      //no score for lose (X)
+      totalScore += opponent == 1 ? 3 : opponent - 1 // 1 -> 3   2 -> 1    3 -> 2
+    }
+  });
+  return totalScore
 }
 
-console.log(part1())
+console.log(part2())

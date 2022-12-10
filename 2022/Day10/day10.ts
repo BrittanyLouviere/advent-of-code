@@ -33,10 +33,8 @@ function part1(){
 
 function part2(){
   let register :number = 1
-  let cycle :number = 1     // cycles STARTED
   let instIndex :number = 0
   let value :number|undefined = undefined
-  let crtLocation : number = 0
   let image :string[] = [""]
   while (instIndex < input.length) {
     // draw pixel
@@ -63,7 +61,6 @@ function part2(){
     else {
       value = +input[instIndex].replace("addx ", "")
     }
-    cycle++
   }
   return image.join("\n")
 }
